@@ -5,18 +5,27 @@ export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(0.18)
+  const [isPlaying, setIsPlaying] = useState(false)
 
   useEffect(() => {
-    const audio = new Audio(
-      'https://archive.org/download/TinTanElPanadero/tin-tan-el-panadero.mp3'
-    )
+    const audio = new Audio('/Panadero.MP3')
     audio.loop = true
     audio.volume = volume
-    audio.play().catch(() => {})
     audioRef.current = audio
 
     return () => { audio.pause(); audio.src = '' }
   }, [])
+
+  const togglePlay = () => {
+    if (!audioRef.current) return
+    if (isPlaying) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    } else {
+      audioRef.current.play().catch(() => {})
+      setIsPlaying(true)
+    }
+  }
 
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = parseFloat(e.target.value)
@@ -42,7 +51,10 @@ export default function MusicPlayer() {
         <span className="music-title">El Panadero — Tin Tan</span>
         <span className="music-sub">Ambiente musical</span>
       </div>
-      <div className={`music-waves ${muted || volume === 0 ? 'muted' : ''}`}>
+      <button className="music-play" onClick={togglePlay} title={isPlaying ? 'Pausar' : 'Reproducir'}>
+        {isPlaying ? '⏸️' : '▶️'}
+      </button>
+      <div className={`music-waves ${muted || volume === 0 || !isPlaying ? 'muted' : ''}`}>
         {[...Array(5)].map((_, i) => <span key={i} className="w-bar" />)}
       </div>
       <input
